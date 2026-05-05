@@ -16,6 +16,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.crash.CrashReport;
 
@@ -137,6 +138,12 @@ public abstract class GuiProblemScreen extends GuiScreen {
         }
         boolean hasUnsupportedMods = !detectedUnsupportedModNames.isEmpty();
 
+        // If a crash occurred mid-render, the Tessellator may be left in a drawing
+        // state. Calling draw() here resets it; if it was not drawing, the exception
+        // is silently ignored.
+        try {
+            Tessellator.instance.draw();
+        } catch (IllegalStateException ignored) {}
         drawDefaultBackground();
         drawCenteredString(
                 fontRendererObj,
